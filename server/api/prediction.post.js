@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify({
         // Model: https://replicate.com/zsxkib/sam-2-video
         version:
-          '2d7219877ca847f463d749d9b224e62f7b078fe035d60a74b58889b455d5cbad',
+          '7aaeb672847f5ac28a4136639b12f9838b8b4d9e8f24341bcc07eab6c646fc72',
         input
       })
     })

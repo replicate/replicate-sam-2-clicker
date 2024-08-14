@@ -2,9 +2,9 @@
   <div class="mx-auto p-8 max-w-3xl">
     <h1 class="text-5xl text-center mb-8">Replicate SAM-2 Clicker</h1>
     <h1 class="text-lg text-center mb-8">
-      <a href="" target="_new" class="text-blue-500 hover:underline mr-8"
-        >Run SAM-2 with an API</a
-      >
+      <a href="" target="_new" class="text-blue-500 hover:underline mr-8">
+        Run SAM-2 with an API
+      </a>
       <a href="" target="_new" class="hover:underline">View the &lt;code&gt;</a>
     </h1>
 
@@ -26,83 +26,97 @@
 
     <!-- SAM-2 model input clicks container, only show if a video file has been selected -->
     <div v-if="video_file">
-      <!-- List all clicks -->
-      <div v-for="(click, i) in clicks" :key="i" class="mt-4 p-4 border-2">
-        <b class="block">#{{ i + 1 }} Click</b>
+      <!-- Show input parameters if we're not loading a prediction -->
+      <div v-if="!loading">
+        <!-- List all clicks -->
+        <div v-for="(click, i) in clicks" :key="i" class="mt-4 p-4 border-2">
+          <b class="block">#{{ i + 1 }} Click</b>
 
-        <!-- Click pixel coordinates -->
-        <div class="grid grid-cols-2 mt-2">
-          <label for="coordinates">Pixel coordinates for click [x,y] </label>
-          <input
-            v-model="clicks[i].coordinates"
-            type="text"
-            name="coordinates"
-            required
-            class="border-2"
-          />
+          <!-- Click pixel coordinates -->
+          <div class="grid grid-cols-2 mt-2">
+            <label for="coordinates">Pixel coordinates for click [x,y] </label>
+            <input
+              v-model="clicks[i].coordinates"
+              type="text"
+              name="coordinates"
+              required
+              class="border-2"
+            />
+          </div>
+
+          <!-- Click label -->
+          <div class="grid grid-cols-2 mt-2">
+            <label for="label">Label for click </label>
+            <input
+              v-model="clicks[i].label"
+              type="number"
+              name="label"
+              required
+              class="border-2"
+            />
+          </div>
+
+          <!-- Click object ID -->
+          <div class="grid grid-cols-2 mt-2">
+            <label for="object_id">Object ID for click </label>
+            <input
+              v-model="clicks[i].object_id"
+              type="text"
+              name="object_id"
+              required
+              class="border-2"
+            />
+          </div>
         </div>
 
-        <!-- Click label -->
-        <div class="grid grid-cols-2 mt-2">
-          <label for="label">Label for click </label>
-          <input
-            v-model="clicks[i].label"
-            type="number"
-            name="label"
-            required
-            class="border-2"
-          />
-        </div>
+        <!-- Add more clicks button -->
+        <button
+          @click="addClick"
+          class="mt-4 p-4 block w-full bg-amber-200 hover:bg-amber-300"
+        >
+          + Add click
+        </button>
 
-        <!-- Click object ID -->
-        <div class="grid grid-cols-2 mt-2">
-          <label for="object_id">Object ID for click </label>
-          <input
-            v-model="clicks[i].object_id"
-            type="text"
-            name="object_id"
-            required
-            class="border-2"
-          />
+        <!-- Submit button -->
+        <button
+          @click="submit"
+          class="mt-4 p-4 block w-full text-white bg-neutral-600 hover:bg-neutral-800"
+        >
+          Submit
+        </button>
+
+        <!-- Input parameter explanation -->
+        <div class="mt-4 p-4 bg-blue-50">
+          <h3 class="text-2xl font-bold mb-4">Explanation</h3>
+          <div class="grid grid-cols-2">
+            <div><b>Pixel coordinates for click</b></div>
+            <div>
+              A string in the form [x,y] for where the click should be in the
+              first frame.
+            </div>
+          </div>
+          <div class="grid grid-cols-2 mt-4">
+            <div><b>Label for click</b></div>
+            <div>
+              A 1 or a 0 for adding or subtracting a segment from tracking.
+            </div>
+          </div>
+          <div class="grid grid-cols-2 mt-4">
+            <div><b>Object ID for click</b></div>
+            <div>A string used to group objects together for labelling.</div>
+          </div>
         </div>
       </div>
 
-      <!-- Add more clicks button -->
-      <button
-        @click="addClick"
-        class="mt-4 p-4 block w-full bg-amber-200 hover:bg-amber-300"
-      >
-        + Add click
-      </button>
+      <!-- Show progress if we're loading a prediction -->
+      <div v-else>
+        <!-- Prediction logs -->
+        <pre class="mt-4 p-4 bg-gray-200 whitespace-pre-wrap">{{ logs }}</pre>
 
-      <!-- Submit button -->
-      <button
-        @click="submit"
-        class="mt-4 p-4 block w-full text-white bg-neutral-600 hover:bg-neutral-800"
-      >
-        Submit
-      </button>
-
-      <!-- Input parameter explanation -->
-      <div class="mt-4 p-4 bg-blue-50">
-        <h3 class="text-2xl font-bold mb-4">Explanation</h3>
-        <div class="grid grid-cols-2">
-          <div><b>Pixel coordinates for click</b></div>
-          <div>
-            A string in the form [x,y] for where the click should be in the
-            first frame.
-          </div>
-        </div>
-        <div class="grid grid-cols-2 mt-4">
-          <div><b>Label for click</b></div>
-          <div>
-            A 1 or a 0 for adding or subtracting a segment from tracking.
-          </div>
-        </div>
-        <div class="grid grid-cols-2 mt-4">
-          <div><b>Object ID for click</b></div>
-          <div>A string used to group objects together for labelling.</div>
-        </div>
+        <!-- Prediction output video -->
+        <video v-if="output" controls class="mt-4">
+          <source :src="output" />
+        </video>
       </div>
     </div>
   </div>
@@ -124,6 +138,9 @@ const urlToBase64 = (url) => {
   })
 }
 
+// utility function to wait for a set of milliseconds
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
 export default {
   name: 'app',
   data() {
@@ -134,11 +151,20 @@ export default {
       // Contians input clicks
       clicks: [
         {
-          coordinates: '[100,200]',
+          coordinates: '[800,200]',
           label: 1,
           object_id: 'object_1'
         }
-      ]
+      ],
+
+      // Indicated whether a prediction is loading
+      loading: false,
+
+      // Logs for prediction
+      logs: '',
+
+      // Outout for prediction
+      output: null
     }
   },
   methods: {
@@ -150,7 +176,7 @@ export default {
     // Add another click to the click list
     addClick() {
       this.clicks.push({
-        coordinates: '[100,200]',
+        coordinates: '[800,200]',
         label: 1,
         object_id: 'object_1'
       })
@@ -159,6 +185,8 @@ export default {
     // Submit a Replicate prediction
     async submit() {
       try {
+        this.loading = true
+
         // Format input parameters
         // For all parameters, check: https://replicate.com/zsxkib/sam-2-video
         const input = {
@@ -183,23 +211,24 @@ export default {
         })
         console.log('data', data)
 
-        /*
+        // Poll
+        this.logs = 'starting...'
         let status = 'starting'
         let response = null
 
-        // Poll
         while (status !== 'succeeded' && status !== 'failed') {
-          response = await $fetch(
-            `/api/prediction?api_token=${this.api_token}&id=${data?.id}`
-          )
-          callback(response.data)
+          response = await $fetch(`/api/prediction?id=${data?.id}`)
 
+          this.logs =
+            response.data.logs === '' ? 'starting...' : response.data.logs
           status = response.data.status
+
           if (status !== 'succeeded' && status !== 'failed') {
-            await sleep(poll_interval)
+            await sleep(5000) // Wait 5s before polling again
           }
         }
-        */
+
+        this.output = response.data.output
       } catch (e) {
         alert('Something went wrong, check console for error.')
         console.error(e)
