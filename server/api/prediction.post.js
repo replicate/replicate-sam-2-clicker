@@ -10,9 +10,9 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`
       },
       body: JSON.stringify({
-        // Model: https://replicate.com/zsxkib/sam-2-video
+        // Model: https://replicate.com/meta/sam-2-video
         version:
-          '7aaeb672847f5ac28a4136639b12f9838b8b4d9e8f24341bcc07eab6c646fc72',
+          '33432afdfc06a10da6b4018932893d39b0159f838b6d11dd1236dff85cc5ec1d',
         input
       })
     })
