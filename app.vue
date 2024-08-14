@@ -2,10 +2,19 @@
   <div class="mx-auto p-8 max-w-3xl">
     <h1 class="text-5xl text-center mb-8">Replicate SAM-2 Clicker</h1>
     <h1 class="text-lg text-center mb-8">
-      <a href="" target="_new" class="text-blue-500 hover:underline mr-8">
+      <a
+        href="https://replicate.com/meta/sam-2-video"
+        target="_new"
+        class="text-blue-500 hover:underline mr-8"
+      >
         Run SAM-2 with an API
       </a>
-      <a href="" target="_new" class="hover:underline">View the &lt;code&gt;</a>
+      <a
+        href="https://github.com/replicate/replicate-sam-2-clicker"
+        target="_new"
+        class="hover:underline"
+        >View the &lt;code&gt;</a
+      >
     </h1>
 
     <!-- Video Container -->
